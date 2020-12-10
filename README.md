@@ -2,7 +2,9 @@
 Carte interactive qui permet la visualisation des fusillade de masse en Amérique.
 
 # Utilisation
-Mettre le fichier datasetv5.csv dans le même dossier que le fichier Projet.html
+Mettre tous les fichiers datasetv*.csv dans le même dossier que les fichiers *.html
 
-Lancer dans un prompt python -m http.server puis lancer le localhost dans un navigateur.
-Vous devriez pouvoir trouver la carte directement.
+Lancer dans un conda prompt python -m http.server puis lancer le localhost dans un navigateur.
+Vous pourrez observer tous les graphique en lançant le fichier graphique.html
+Vous pourrez observer la carte en lançant le fichier map.html
+
