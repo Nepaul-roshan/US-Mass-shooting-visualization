@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<button class="T" onclick="update('Texas1.csv')">Texas</button>
+<button onclick="update('California1.csv')">California</button>
+<button onclick="update('Maryland.csv')">Maryland</button>
+<button onclick="update('Massachusetts1.csv')">Maryland</button>
+<button onclick="update('Illinois.csv')">Illinois</button>
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+
+    // set the dimensions and margins of the graph
+    var width = 450
+    height = 450
+    margin = 40
+
+    // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+    var radius = Math.min(width, height) / 2 - margin
+    var races = []
+    var race = {}
+    // Parse the Data
+    d3.csv("datasetv8.csv", function (data) {
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].states == "California") { races.push(data[i].gender) }
+
+        }
+        for (var i = 0; i < races.length; i++) {
+            if (races[i] in race) race[races[i]]++
+            else race[races[i]] = 1
+        }
+        
+    })
+    console.log(race)
+    // append the svg object to the div called 'my_dataviz'
+    var svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    function update(selectedVar) {
+        var label = {}
+        // Parse the Data
+        d3.csv(selectedVar, function (d) {
+
+            console.log(d[1])
+            label[d[0].gender] = d[0].number2
+            label[d[1].gender] = d[1].number2
+            label[d[2].gender] = d[2].number2
+
+           
+
+
+
+
+            // Create dummy data
+            var data = label
+
+            // set the color scale
+            var color = d3.scaleOrdinal()
+                .domain(data)
+                .range(["#7A0027", "#8CC714", "#067A5D"])
+
+            // Compute the position of each group on the pie:
+            var pie = d3.pie()
+                .value(function (d) { return d.value; })
+            var data_ready = pie(d3.entries(data))
+
+            // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+            svg
+                .selectAll('whatever')
+                .data(data_ready)
+                .enter()
+                .append('path')
+                .attr('d', d3.arc()
+                    .innerRadius(100)         // This is the size of the donut hole
+                    .outerRadius(radius)
+                )
+                .attr('fill', function (d) { return (color(d.data.key)) })
+                .attr("stroke", "black")
+                .style("stroke-width", "1px")
+                .style("opacity", 1)
+
+    })
+}
+        update('Texas1.csv')
+</script>

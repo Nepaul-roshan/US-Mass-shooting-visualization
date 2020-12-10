@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Tuerie de Mass USA</title>
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<style type="text/css">
+  /* On mouse hover, lighten state color */
+  .chart {
+    height: auto;
+    width: auto;
+
+
+    border: 1px rgb(0, 0, 0) solid;
+    background-color: #ffffff;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 7%;
+
+  }
+
+  .chart3 {
+    height: auto;
+    width: auto;
+    margin-top: 15px;
+
+    border: 1px rgb(0, 0, 0) solid;
+    background-color: #ffffff;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 25%;
+
+  }
+
+  .chart2 {
+    height: auto;
+    width: auto;
+
+
+
+    background-color: #ffffff;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 6%;
+
+
+  }
+
+  .chart4 {
+    height: auto;
+    width: auto;
+    margin-top: 15px;
+
+
+    border: 1px rgb(0, 0, 0) solid;
+    background-color: #ffffff;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 1%;
+
+  }
+
+  .soustitre {
+    background-color: #4B6164;
+    vertical-align: middle;
+    text-align: center;
+    width: 100%;
+    display: table;
+    color: #ffffff;
+    text-decoration: underline;
+
+  }
+
+
+  .T {
+    padding: 6px 0 6px 0;
+    font: Bold 13px Arial;
+    background: #434364;
+    color: #fff;
+    width: 90px;
+    border-radius: 2px;
+    border: none;
+  }
+
+  .title {
+    position: relative;
+    width: 400px;
+    min-width: 300px;
+    margin: 0 auto;
+    padding: 15px 0;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .legend rect {
+    fill: white;
+    stroke: black;
+    opacity: 0.8;
+  }
+</style>
+
+
+<h2 class="title"><a href="http://localhost:8000/map.html">Tuerie de masse aux USA</a></h2>
+
+
+<!-- Create a div where the graph will take place -->
+
+<div id="my_dataviz" class="chart">
+  <div class="soustitre">
+    <h3>Ethinicité des tueurs</h3>
+  </div>
+
+</div>
+
+
+<script>
+
+  // set the dimensions and margins of the graph
+  var margin = { top: 30, right: 30, bottom: 70, left: 30 },
+    width = 600 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+  // append the svg object to the body of the page
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
+
+  // Initialize the X axis
+  var x = d3.scaleBand()
+    .range([0, width])
+    .padding(1);
+  var xAxis = svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+
+  // Initialize the Y axis
+  var y = d3.scaleLinear()
+    .range([height, 0]);
+  var yAxis = svg.append("g")
+    .attr("class", "myYaxis")
+
+  function update0(selectedVar) {
+    update(selectedVar)
+    update2(selectedVar)
+  }
+  // A function that create / update the plot for a given variable:
+  function update(selectedVar) {
+
+    // Parse the Data
+    d3.csv(selectedVar, function (data) {
+
+      // X axis
+      x.domain(data.map(function (d) { return d.race; }))
+      xAxis.transition().duration(1000).call(d3.axisBottom(x))
+
+      // Add Y axis
+      y.domain([0, d3.max(data, function (d) { return +d["number"] })]);
+      yAxis.transition().duration(1000).call(d3.axisLeft(y));
+
+      // variable u: map data to existing circle
+      var j = svg.selectAll(".myLine")
+        .data(data)
+      // update lines
+      j
+        .enter()
+        .append("line")
+        .attr("class", "myLine")
+        .merge(j)
+        .transition()
+        .duration(1000)
+        .attr("x1", function (d) { return x(d.race); })
+        .attr("x2", function (d) { return x(d.race); })
+        .attr("y1", y(0))
+        .attr("y2", function (d) { return y(d["number"]); })
+        .attr("stroke", "grey")
+
+
+      // variable u: map data to existing circle
+      var u = svg.selectAll("circle")
+        .data(data)
+      // update bars
+      u
+        .enter()
+        .append("circle")
+        .merge(u)
+        .transition()
+        .duration(1000)
+        .attr("cx", function (d) { return x(d.race); })
+        .attr("cy", function (d) { return y(d["number"]); })
+        .attr("r", 8)
+        .attr("fill", "#1B7074");
+
+
+    })
+
+  }
+
+  // Initialize plot
+  update('California1.csv')
+
+</script>
+<div id="button" class="chart2">
+
+  <p><button class="T" onclick="update0('Texas1.csv')">Texas</button></p>
+  <p><button class="T" onclick="update0('California1.csv')">California</button></p>
+  <p><button class="T" onclick="update0('Florida1.csv')">Florida</button></p>
+  <p><button class="T" onclick="update0('Illinois1.csv')">Illinois</button></p>
+  <p><button class="T" onclick="update0('Maryland.csv')">Maryland</button></p>
+
+</div>
+<div id="pie" class="chart">
+  <div class="soustitre">
+    <h3>Répartition du genre des tueurs en fonction des états</h3>
+  </div>
+</div>
+<script>
+
+  // set the dimensions and margins of the graph
+
+  var width2 = 600
+  height2 = 400
+  margin2 = 40
+
+  // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+  var radius2 = Math.min(width2, height2) / 2 - margin2
+  var races = []
+  var race = {}
+  // Parse the Data
+  d3.csv("datasetv8.csv", function (data) {
+
+    for (var i = 0; i < data.length; i++) {
+      if (data[i].states == "Maryland") { races.push(data[i].gender) }
+
+    }
+    for (var i = 0; i < races.length; i++) {
+      if (races[i] in race) race[races[i]]++
+      else race[races[i]] = 1
+    }
+
+  })
+
+  // append the svg object to the div called 'my_dataviz'
+  var svg2 = d3.select("#pie")
+    .append("svg")
+    .attr("width", width2)
+    .attr("height", height2)
+    .append("g")
+    .attr("transform", "translate(" + width2 / 2 + "," + height2 / 2 + ")");
+  function update2(selectedVar) {
+    var label = {}
+    // Parse the Data
+    d3.csv(selectedVar, function (d) {
+      label[d[0].gender] = d[0].number2
+      label[d[1].gender] = d[1].number2
+      label[d[2].gender] = d[2].number2
+      // Create dummy data
+      var data = label
+
+      // set the color scale
+      var color2 = d3.scaleOrdinal()
+        .domain(data)
+        .range(["#56998A", "#E65C7D","#E6D36A"])
+
+      var legendText = ["Femme", "Couple", "Homme"];
+
+      // Compute the position of each group on the pie:
+      var pie = d3.pie()
+        .value(function (d) { return d.value; })
+      var data_ready = pie(d3.entries(data))
+
+      // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+      svg2
+        .selectAll('whatever')
+        .data(data_ready)
+        .enter()
+        .append('path')
+        .attr('d', d3.arc()
+          .innerRadius(100)         // This is the size of the donut hole
+          .outerRadius(radius2)
+        )
+        .attr('fill', function (d) { return (color2(d.data.key)) })
+        .attr("stroke", "black")
+        .style("stroke-width", "1px")
+        .style("opacity", 1)
+
+
+    })
+  }
+
+  update2('California1.csv')
+</script>
+</div>
+
+<div id="troisieme" class="chart3">
+  <div class="soustitre">
+    <h3>Ages des tueurs</h3>
+  </div>
+</div>
+
+<script>
+
+  // set the dimensions and margins of the graph
+  var margin3 = { top: 10, right: 30, bottom: 30, left: 40 },
+    width3 = 900 - margin3.left - margin3.right,
+    height3 = 500 - margin3.top - margin3.bottom;
+
+  // append the svg object to the body of the page
+  var svg3 = d3.select("#troisieme")
+    .append("svg")
+    .attr("width", width3 + margin3.left + margin3.right)
+    .attr("height", height3 + margin3.top + margin3.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin3.left + "," + margin3.top + ")");
+
+  // get the data
+  d3.csv("datasetv6.csv", function (data) {
+
+    // X axis: scale and draw:
+    var x = d3.scaleLinear()
+      .domain([10, 80])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
+      .range([0, width3]);
+    svg3.append("g")
+      .attr("transform", "translate(0," + height3 + ")")
+      .call(d3.axisBottom(x));
+
+    // set the parameters for the histogram
+    var histogram = d3.histogram()
+      .value(function (d) { return d.age_of_shooter; })   // I need to give the vector of value
+      .domain(x.domain())  // then the domain of the graphic
+      .thresholds(x.ticks(70)); // then the numbers of bins
+
+    // And apply this function to data to get the bins
+    var bins = histogram(data);
+
+    // Y axis: scale and draw:
+    var y = d3.scaleLinear()
+      .range([height3, 0]);
+    y.domain([0, d3.max(bins, function (d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
+    svg3.append("g")
+      .call(d3.axisLeft(y));
+
+    // append the bar rectangles to the svg element
+    svg3.selectAll("rect")
+      .data(bins)
+      .enter()
+      .append("rect")
+      .attr("x", 1)
+      .attr("transform", function (d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+      .attr("width", function (d) { return x(d.x1) - x(d.x0) - 1; })
+      .attr("height", function (d) { return height3 - y(d.length); })
+      .style("fill", function (d) { if (d.x0 < 21) { return "#AF0F52" } else { return "#287C45" } })
+
+    // Append a vertical line to highlight the separation
+    svg3
+      .append("line")
+      .attr("x1", x(21))
+      .attr("x2", x(21))
+      .attr("y1", y(0))
+      .attr("y2", y(7))
+      .attr("stroke", "grey")
+      .attr("stroke-dasharray", "4")
+    svg3
+      .append("text")
+      .attr("x", x(14))
+      .attr("y", y(5.5))
+      .text("Mineurs: 16")
+      .style("font-size", "11px")
+      .style("font", "italic 1em 'Fira Sans', serif")
+
+  });
+</script>
+
+
+<div class="title">
+  <h2>Santé mentale des tueurs</h2>
+</div>
+<div id="sixieme" class="chart4">
+  <div class="soustitre">
+    <h3>Region Ouest</h3>
+  </div>
+</div>
+
+
+<script>
+
+  // set the dimensions and margins of the graph
+  var margin6 = { top: 10, right: 30, bottom: 20, left: 50 },
+    width6 = 460 - margin6.left - margin6.right,
+    height6 = 400 - margin6.top - margin6.bottom;
+
+  // append the svg object to the body of the page
+  var svg6 = d3.select("#sixieme")
+    .append("svg")
+    .attr("width", width6 + margin6.left + margin6.right)
+    .attr("height", height6 + margin6.top + margin6.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin6.left + "," + margin6.top + ")");
+
+  // Parse the Data
+  d3.csv('West.csv', function (data) {
+
+    // List of subgroups = header of the csv files = soil condition here
+    var subgroups = data.columns.slice(1)
+
+    // List of groups = species here = value of the first column called group -> I show them on the X axis
+    var groups = d3.map(data, function (d) { return (d.states) }).keys()
+
+
+    // Add X axis
+    var x6 = d3.scaleBand()
+      .domain(groups)
+      .range([0, width6])
+      .padding([0.2])
+    svg6.append("g")
+      .attr("transform", "translate(0," + height6 + ")")
+      .call(d3.axisBottom(x6).tickSizeOuter(0));
+
+    // Add Y axis
+    var y6 = d3.scaleLinear()
+      .domain([0, 25])
+      .range([height6, 0]);
+    svg6.append("g")
+      .call(d3.axisLeft(y6));
+
+    // color palette = one color per subgroup
+    var color6 = d3.scaleOrdinal()
+      .domain(subgroups)
+      .range(['#913059', '#23171C', '#1B7074'])
+    var legendText3 = ["Aucun", "Autre", "Problème"];
+
+    //stack the data? --> stack per subgroup
+    var stackedData = d3.stack()
+      .keys(subgroups)
+      (data)
+
+    // Show the bars
+    var u6 = svg6.append("g")
+      .selectAll("g")
+    u6
+      // Enter in the stack data = loop key per key = group per group
+      .data(stackedData)
+      .enter().append("g")
+      .attr("fill", function (d) { return color6(d.key); })
+      .selectAll("rect")
+      // enter a second time = loop subgroup per subgroup to add all rectangles
+      .data(function (d) { return d; })
+      .enter().append("rect")
+      .attr("x", function (d) { return x6(d.data.states); })
+      .attr("y", function (d) { return y6(d[1]); })
+      .attr("height", function (d) { return y6(d[0]) - y6(d[1]); })
+      .attr("width", x6.bandwidth())
+    u6
+      .exit()
+      .remove()
+    var legend3 = d3.select("#sixieme").append("svg")
+      .attr("class", "legend")
+      .attr("width", 100)
+      .attr("height", 150)
+      .selectAll("g")
+      .data(color6.domain().slice().reverse())
+      .enter()
+      .append("g")
+      .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
+
+    legend3.append("rect")
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color6);
+
+    legend3.append("text")
+      .data(legendText3)
+      .attr("x", 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .text(function (d) { return d; });
+  })
+
+
+
+
+</script>
+
+<div id="cinquieme" class="chart4">
+  <div class="soustitre">
+    <h3>Region Centre</h3>
+  </div>
+</div>
+
+<script>
+
+  // set the dimensions and margins of the graph
+  var margin4 = { top: 10, right: 30, bottom: 20, left: 50 },
+    width4 = 460 - margin4.left - margin4.right,
+    height4 = 400 - margin4.top - margin4.bottom;
+
+  // append the svg object to the body of the page
+  var svg4 = d3.select("#cinquieme")
+    .append("svg")
+    .attr("width", width4 + margin4.left + margin4.right)
+    .attr("height", height4 + margin4.top + margin4.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin4.left + "," + margin4.top + ")");
+
+  // Parse the Data
+  d3.csv('East.csv', function (data) {
+
+    // List of subgroups = header of the csv files = soil condition here
+    var subgroups1 = data.columns.slice(1)
+
+    // List of groups = species here = value of the first column called group -> I show them on the X axis
+    var groups1 = d3.map(data, function (d) { return (d.states) }).keys()
+
+
+    // Add X axis
+    var x4 = d3.scaleBand()
+      .domain(groups1)
+      .range([0, width4])
+      .padding([0.2])
+    svg4.append("g")
+      .attr("transform", "translate(0," + height4 + ")")
+      .call(d3.axisBottom(x4).tickSizeOuter(0));
+
+    // Add Y axis
+    var y4 = d3.scaleLinear()
+      .domain([0, 25])
+      .range([height4, 0]);
+    svg4.append("g")
+      .call(d3.axisLeft(y4));
+
+    // color palette = one color per subgroup
+    var color4 = d3.scaleOrdinal()
+      .domain(subgroups1)
+      .range(['#913059', '#23171C', '#1B7074'])
+
+    var legendText = ["Aucun", "Autre", "Problème"];
+
+    //stack the data? --> stack per subgroup
+    var stackedData1 = d3.stack()
+      .keys(subgroups1)
+      (data)
+
+    // Show the bars
+    var u4 = svg4.append("g")
+      .selectAll("g")
+    u4
+      // Enter in the stack data = loop key per key = group per group
+      .data(stackedData1)
+      .enter().append("g")
+      .attr("fill", function (d) { return color4(d.key); })
+      .selectAll("rect")
+      // enter a second time = loop subgroup per subgroup to add all rectangles
+      .data(function (d) { return d; })
+      .enter().append("rect")
+      .attr("x", function (d) { return x4(d.data.states); })
+      .attr("y", function (d) { return y4(d[1]); })
+      .attr("height", function (d) { return y4(d[0]) - y4(d[1]); })
+      .attr("width", x4.bandwidth())
+    u4
+      .exit()
+      .remove()
+
+    var legend = d3.select("#cinquieme").append("svg")
+      .attr("class", "legend")
+      .attr("width", 100)
+      .attr("height", 150)
+      .selectAll("g")
+      .data(color4.domain().slice().reverse())
+      .enter()
+      .append("g")
+      .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
+
+    legend.append("rect")
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color4);
+
+    legend.append("text")
+      .data(legendText)
+      .attr("x", 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .text(function (d) { return d; });
+  })
+
+
+
+</script>
+
+<div id="quatrieme" class="chart4">
+  <div class="soustitre">
+    <h3>Region Est</h3>
+  </div>
+</div>
+
+<script>
+
+  // set the dimensions and margins of the graph
+  var margin5 = { top: 10, right: 30, bottom: 20, left: 50 },
+    width5 = 460 - margin5.left - margin5.right,
+    height5 = 400 - margin5.top - margin5.bottom;
+
+  // append the svg object to the body of the page
+  var svg5 = d3.select("#quatrieme")
+    .append("svg")
+    .attr("width", width5 + margin5.left + margin5.right)
+    .attr("height", height5 + margin5.top + margin5.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin5.left + "," + margin5.top + ")");
+
+  // Parse the Data
+  d3.csv('Center.csv', function (data) {
+
+    // List of subgroups = header of the csv files = soil condition here
+    var subgroups2 = data.columns.slice(1)
+
+    // List of groups = species here = value of the first column called group -> I show them on the X axis
+    var groups2 = d3.map(data, function (d) { return (d.states) }).keys()
+
+
+    // Add X axis
+    var x5 = d3.scaleBand()
+      .domain(groups2)
+      .range([0, width5])
+      .padding([0.2])
+    svg5.append("g")
+      .attr("transform", "translate(0," + height5 + ")")
+      .call(d3.axisBottom(x5).tickSizeOuter(0));
+
+    // Add Y axis
+    var y5 = d3.scaleLinear()
+      .domain([0, 25])
+      .range([height5, 0]);
+    svg5.append("g")
+      .call(d3.axisLeft(y5));
+
+    // color palette = one color per subgroup
+    var color5 = d3.scaleOrdinal()
+      .domain(subgroups2)
+      .range(['#913059', '#23171C', '#1B7074'])
+
+    var legendText2 = ["Aucun", "Autre", "Problème"];
+
+    //stack the data? --> stack per subgroup
+    var stackedData2 = d3.stack()
+      .keys(subgroups2)
+      (data)
+
+    // Show the bars
+    var u5 = svg5.append("g")
+      .selectAll("g")
+    u5
+      // Enter in the stack data = loop key per key = group per group
+      .data(stackedData2)
+      .enter().append("g")
+      .attr("fill", function (d) { return color5(d.key); })
+      .selectAll("rect")
+      // enter a second time = loop subgroup per subgroup to add all rectangles
+      .data(function (d) { return d; })
+      .enter().append("rect")
+      .attr("x", function (d) { return x5(d.data.states); })
+      .attr("y", function (d) { return y5(d[1]); })
+      .attr("height", function (d) { return y5(d[0]) - y5(d[1]); })
+      .attr("width", x5.bandwidth())
+    u5
+      .exit()
+      .remove()
+
+
+    var legend2 = d3.select("#quatrieme").append("svg")
+      .attr("class", "legend")
+      .attr("width", 100)
+      .attr("height", 150)
+      .selectAll("g")
+      .data(color5.domain().slice().reverse())
+      .enter()
+      .append("g")
+      .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
+
+    legend2.append("rect")
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color5);
+
+    legend2.append("text")
+      .data(legendText2)
+      .attr("x", 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .text(function (d) { return d; });
+
+  })
+
+</script>

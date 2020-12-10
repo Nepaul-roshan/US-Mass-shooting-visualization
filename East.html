@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+
+	// set the dimensions and margins of the graph
+	var margin4 = {top: 10, right: 30, bottom: 20, left: 50},
+		width4 = 460 - margin4.left - margin4.right,
+		height4 = 400 - margin4.top - margin4.bottom;
+	
+	// append the svg object to the body of the page
+	var svg4 = d3.select("#my_dataviz")
+	  .append("svg")
+		.attr("width", width4 + margin4.left + margin4.right)
+		.attr("height", height4 + margin4.top + margin4.bottom)
+	  .append("g")
+		.attr("transform",
+			  "translate(" + margin4.left + "," + margin4.top + ")");
+
+	// Parse the Data
+	d3.csv('East.csv', function(data) {
+	
+	  // List of subgroups = header of the csv files = soil condition here
+	  var subgroups = data.columns.slice(1)
+	
+	  // List of groups = species here = value of the first column called group -> I show them on the X axis
+	  var groups = d3.map(data, function(d){return(d.states)}).keys()
+	
+	
+	  // Add X axis
+	  var x4 = d3.scaleBand()
+		  .domain(groups)
+		  .range([0, width4])
+		  .padding([0.2])
+	  svg4.append("g")
+		.attr("transform", "translate(0," + height4 + ")")
+		.call(d3.axisBottom(x4).tickSizeOuter(0));
+	
+	  // Add Y axis
+	  var y4 = d3.scaleLinear()
+		.domain([0, 25])
+		.range([ height4, 0 ]);
+	  svg4.append("g")
+		.call(d3.axisLeft(y4));
+	
+	  // color palette = one color per subgroup
+	  var color4 = d3.scaleOrdinal()
+		.domain(subgroups)
+		.range(['#913059','#23171C','#1B7074'])
+	
+	  //stack the data? --> stack per subgroup
+	  var stackedData = d3.stack()
+		.keys(subgroups)
+		(data)
+	
+	  // Show the bars
+	  var u4 = svg4.append("g")
+		.selectAll("g")
+	u4
+		// Enter in the stack data = loop key per key = group per group
+		.data(stackedData)
+		.enter().append("g")
+		  .attr("fill", function(d) { return color4(d.key); })
+		  .selectAll("rect")
+		  // enter a second time = loop subgroup per subgroup to add all rectangles
+		  .data(function(d) { return d; })
+		  .enter().append("rect")
+			.attr("x", function(d) { return x4(d.data.states); })
+			.attr("y", function(d) { return y4(d[1]); })
+			.attr("height", function(d) { return y4(d[0]) - y4(d[1]); })
+			.attr("width",x4.bandwidth())
+	u4
+	.exit()
+	.remove()
+	})
+	
+	
+	
+	</script>
